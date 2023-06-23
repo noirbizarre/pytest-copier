@@ -49,7 +49,7 @@ jobs:
           increment: ${{ github.event.inputs.increment }}
           debug: true
 
-      - uses: convictional/trigger-workflow-and-wait@v1.6.1
+      - uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
