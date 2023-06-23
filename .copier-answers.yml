@@ -1,0 +1,21 @@
+# Changes here will be overwritten by Copier
+_commit: 3a0a81c
+_src_path: /home/noirbizarre/Workspaces/copier.templates/python.copier
+author_email: noirbizarre@gmail.com
+author_fullname: Axel Haustant
+author_username: noirbizarre
+copyright_license: MIT License
+has_docs: false
+is_cli: false
+is_lib: true
+project_description: A pytest plugin to help testing Copier templates
+project_name: pytest-copier
+project_slug: pytest-copier
+python_distribution: pytest-copier
+python_package: pytest_copier
+repository_name: pytest-copier
+repository_namespace: noirbizarre
+repository_provider: github.com
+use_src: true
+
+# End
