@@ -76,6 +76,8 @@ def copier_template(
         copytree(copier_template_root, src, dirs_exist_ok=True)
 
     run("git", "init", cwd=src)
+    run("git", "config", "user.name", "User Name", cwd=src)
+    run("git", "config", "user.email", "user@email.org", cwd=src)
     run("git", "add", "-A", ".", cwd=src)
     run("git", "commit", "-m", "test", cwd=src)
     run("git", "tag", "99.99.99", cwd=src)
