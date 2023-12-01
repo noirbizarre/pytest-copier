@@ -43,7 +43,20 @@ class AnsersDiffRepr(DiffRepr):
 
 def run(cmd: str, *args, **kwargs) -> None:
     args = [cmd, *args] if args else shlex.split(cmd)  # type: ignore
-    subprocess.check_call(args, **kwargs)
+    try:
+        subprocess.run(args, check=True, capture_output=True, **kwargs)
+    except subprocess.CalledProcessError as e:
+        out = StringIO()
+        tw = TerminalWriter(out)
+        output = e.stdout.decode("utf-8").replace("\n", "\n>>> ")
+        error = e.stderr.decode("utf-8").replace("\n", "\n>>> ")
+        tw.hasmarkup = True
+        tw.line(f"{str(e)}\n")
+        if output:
+            tw.line(f"Standard output:\n>>> {output}\n")
+        if error:
+            tw.line(f"Standard error:\n>>> {error}")
+        raise RuntimeError(out.getvalue()) from e
 
 
 @pytest.fixture(scope="session")
