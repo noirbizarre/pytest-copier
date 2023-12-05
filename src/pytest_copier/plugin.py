@@ -14,6 +14,7 @@ import yaml
 
 from _pytest._io import TerminalWriter
 from copier.main import run_copy, run_update
+from plumbum import local
 from pytest_dir_equal import DEFAULT_IGNORES, DiffRepr, assert_dir_equal
 
 if TYPE_CHECKING:
@@ -56,12 +57,28 @@ def copier_template_paths() -> list[str]:
     return []
 
 
+@pytest.fixture(scope="session", autouse=True)
+def default_gitconfig(default_gitconfig: GitConfig, sessionpatch: pytest.Monkeypatch) -> GitConfig:
+    """
+    Use a clean and isolated default gitconfig avoiding user settings to break some tests.
+
+    Add plumbum support to the original session-scoped fixture.
+    """
+    # local.env is a snapshot frozen at Python startup requiring its own monkeypatching
+    for var in list(local.env.keys()):
+        if var.startswith("GIT_"):
+            sessionpatch.delitem(local.env, var)
+    sessionpatch.setitem(local.env, "GIT_CONFIG_GLOBAL", str(default_gitconfig))
+    default_gitconfig.set({"core.autocrlf": "input"})
+    return default_gitconfig
+
+
 @pytest.fixture(scope="session")
 def copier_template(
     tmp_path_factory: pytest.TempPathFactory,
     copier_template_root: Path,
     copier_template_paths: list[str],
-    gitconfig: GitConfig,
+    default_gitconfig: GitConfig,
 ) -> Path:
     src = tmp_path_factory.mktemp("src", False)
 
