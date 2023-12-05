@@ -17,6 +17,8 @@ from copier.main import run_copy, run_update
 from plumbum import local
 from pytest_dir_equal import DEFAULT_IGNORES, DiffRepr, assert_dir_equal
 
+from .errors import CopierTaskError
+
 if TYPE_CHECKING:
     from pytest_gitconfig import GitConfig
 
@@ -107,27 +109,40 @@ class CopierFixture:
     defaults: dict[str, Any]
 
     def copy(self, **data) -> CopierProject:
-        run_copy(
-            str(self.template),
-            self.dst,
-            overwrite=True,
-            cleanup_on_error=False,
-            unsafe=True,
-            defaults=True,
-            data={**self.defaults, **data},
-        )
+        __tracebackhide__ = True
+        try:
+            run_copy(
+                str(self.template),
+                self.dst,
+                overwrite=True,
+                cleanup_on_error=False,
+                unsafe=True,
+                defaults=True,
+                data={**self.defaults, **data},
+            )
+        except subprocess.CalledProcessError as e:
+            # we catch those error which are triggered by tasks
+            # we can produce a more streamlined error report
+            # we explicitly raise form None to cut the inner stacktrace too
+            raise CopierTaskError(f"❌ Task failed: {e}") from None
         return CopierProject(self.dst)
 
     def update(self, **data) -> CopierProject:
-        run_update(
-            str(self.template),
-            self.dst,
-            overwrite=True,
-            cleanup_on_error=False,
-            unsafe=True,
-            defaults=True,
-            data={**self.defaults, **data},
-        )
+        __tracebackhide__ = True
+        try:
+            run_update(
+                str(self.template),
+                self.dst,
+                overwrite=True,
+                cleanup_on_error=False,
+                unsafe=True,
+                defaults=True,
+                data={**self.defaults, **data},
+            )
+        except subprocess.CalledProcessError as e:
+            # we catch those error which are triggered by tasks
+            # we can produce a more streamlined error report
+            raise CopierTaskError(f"❌ Task failed: {e}") from None
         return CopierProject(self.dst)
 
 
@@ -167,6 +182,8 @@ class CopierProject:
         assert_dir_equal(self.path, expected, ignore=ignore)
 
     def run(self, command: str, **kwargs):
+        """Run a command in the rendered project"""
+        __tracebackhide__ = True
         run(*shlex.split(command), cwd=self.path, **kwargs)
 
     def __truediv__(self, key):
