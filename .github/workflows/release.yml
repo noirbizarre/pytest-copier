@@ -3,16 +3,6 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      prerelease:
-        type: choice
-        description: Pre-release type (optional)
-        options:
-          - ''
-          - alpha
-          - beta
-          - rc
-        default: ''
-        required: false
       increment:
         type: choice
         description: Kind of increment (optional)
@@ -28,39 +18,64 @@ jobs:
   release:
     name: Bump version and create changelog with commitizen
     runs-on: ubuntu-latest
+    environment: releases
     permissions:
       actions: write
       contents: write
       pull-requests: write
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
 
     steps:
       - name: Clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: "3.11"
+          cache: true
 
       - name: Bump using commitizen
+        id: commitizen
         uses: commitizen-tools/commitizen-action@master
         with:
-          github_token: ${{ github.token }}
+          github_token: ${{ secrets.PAT }}
           changelog_increment_filename: body.md
           extra_requirements: emotional
-          prerelease: ${{ github.event.inputs.prerelease }}
           increment: ${{ github.event.inputs.increment }}
           debug: true
 
-      - uses: convictional/trigger-workflow-and-wait@v1.6.1
-        with:
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-          ref: ${{ env.REVISION }}
-          github_token: ${{ github.token }}
-          workflow_file_name: ci.yml
-          trigger_workflow: true
-          wait_workflow: true
+      # Disabled until a viable alternative if found/developed
+      # - name: Wait for CI tests to succeed
+      #   uses: lewagon/wait-on-check-action@v1.3.1
+      #   with:
+      #     ref: ${{ env.REVISION }}
+      #     running-workflow-name: CI
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     wait-interval: 10
+
+      - name: Build artifacts
+        run: pdm build
 
       - name: Github Release
+        id: github-release
         uses: softprops/action-gh-release@v1
         with:
           body_path: "body.md"
           tag_name: ${{ env.REVISION }}
+          files: dist/*
+
+      - name: Publish on PyPI
+        run: pdm publish --no-build
+
+      - name: Publish summary
+        run: |
+          cat body.md >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- GitHub release: ${{ steps.github-release.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- PyPI release: https://pypi.org/project/pytest-copier/${REVISION}/" >> $GITHUB_STEP_SUMMARY
