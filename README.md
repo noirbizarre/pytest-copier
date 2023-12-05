@@ -7,6 +7,8 @@
 
 A pytest plugin to help testing Copier templates
 
+**Note:** this was a PoC and it will receive the full code and documentation very soon.
+
 ## Getting started
 
 Install `pytest-copier`:
