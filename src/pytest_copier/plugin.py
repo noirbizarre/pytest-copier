@@ -152,6 +152,13 @@ class CopierProject:
     def run(self, command: str, **kwargs):
         run(*shlex.split(command), cwd=self.path, **kwargs)
 
+    def __truediv__(self, key):
+        """Provide pathlib-like support"""
+        try:
+            return self.path.joinpath(key)
+        except TypeError:
+            return NotImplemented
+
 
 @pytest.fixture
 def copier_defaults() -> dict[str, Any]:
