@@ -7,3 +7,7 @@ class CopierError(RuntimeError):
 
 class CopierTaskError(CopierError):
     """Triggered by post-generation tasks"""
+
+
+class ProjectRunError(CopierError):
+    """Triggered by a command executed in th project"""

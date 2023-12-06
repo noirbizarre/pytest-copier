@@ -17,7 +17,7 @@ from copier.main import run_copy, run_update
 from plumbum import local
 from pytest_dir_equal import DEFAULT_IGNORES, DiffRepr, assert_dir_equal
 
-from .errors import CopierTaskError
+from .errors import CopierTaskError, ProjectRunError
 
 if TYPE_CHECKING:
     from pytest_gitconfig import GitConfig
@@ -124,7 +124,7 @@ class CopierFixture:
             # we catch those error which are triggered by tasks
             # we can produce a more streamlined error report
             # we explicitly raise form None to cut the inner stacktrace too
-            raise CopierTaskError(f"❌ Task failed: {e}") from None
+            raise CopierTaskError(f"❌ {e}") from None
         return CopierProject(self.dst)
 
     def update(self, **data) -> CopierProject:
@@ -142,7 +142,7 @@ class CopierFixture:
         except subprocess.CalledProcessError as e:
             # we catch those error which are triggered by tasks
             # we can produce a more streamlined error report
-            raise CopierTaskError(f"❌ Task failed: {e}") from None
+            raise CopierTaskError(f"❌ {e}") from None
         return CopierProject(self.dst)
 
 
@@ -184,7 +184,12 @@ class CopierProject:
     def run(self, command: str, **kwargs):
         """Run a command in the rendered project"""
         __tracebackhide__ = True
-        run(*shlex.split(command), cwd=self.path, **kwargs)
+        try:
+            run(*shlex.split(command), cwd=self.path, **kwargs)
+        except subprocess.CalledProcessError as e:
+            # produce a more streamlined error report
+            # we explicitly raise form None to cut the inner stacktrace too
+            raise ProjectRunError(f"❌ {e}") from None
 
     def __truediv__(self, key):
         """Provide pathlib-like support"""
