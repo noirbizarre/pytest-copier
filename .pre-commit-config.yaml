@@ -8,10 +8,6 @@ default_install_hook_types:
   - commit-msg
   - pre-push
 
-default_stages:
-  - commit
-  - push
-
 repos:
   - repo: meta
     hooks:
@@ -74,3 +70,4 @@ repos:
       additional_dependencies:
         - tomli
       args: ["--write-changes"]
+      exclude: ^(CHANGELOG\.md|pdm\.lock)$
