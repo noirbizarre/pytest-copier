@@ -7,12 +7,13 @@ from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from shutil import copy, copytree
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Mapping, cast
 
 import pytest
 import yaml
 
 from _pytest._io import TerminalWriter
+from copier import Worker
 from copier.main import run_copy, run_update
 from plumbum import local
 from pytest_dir_equal import DEFAULT_IGNORES, DiffRepr, assert_dir_equal
@@ -109,6 +110,7 @@ class CopierFixture:
     defaults: dict[str, Any]
 
     def copy(self, **data) -> CopierProject:
+        """Copy a template given some answers"""
         __tracebackhide__ = True
         try:
             run_copy(
@@ -128,6 +130,7 @@ class CopierFixture:
         return CopierProject(self.dst)
 
     def update(self, **data) -> CopierProject:
+        """Update a template given some answers"""
         __tracebackhide__ = True
         try:
             run_update(
@@ -144,6 +147,26 @@ class CopierFixture:
             # we can produce a more streamlined error report
             raise CopierTaskError(f"❌ {e}") from None
         return CopierProject(self.dst)
+
+    def context(self, **answers) -> Mapping[str, Any]:
+        """Get the context rendered given some answers"""
+        __tracebackhide__ = True
+        worker = self.worker(**answers)
+        worker._ask()
+        env = worker.jinja_env
+        data = cast(dict[str, Any], worker._render_context())
+        ctx = env.context_class(env, data, "", {}, env.globals)
+        return ctx.get_all()
+
+    def worker(self, **answers) -> Worker:
+        """Get a worker with prefilled answers"""
+        return Worker(
+            src_path=str(self.template),
+            dst_path=self.dst,
+            unsafe=True,
+            defaults=True,
+            data={**self.defaults, **answers},
+        )
 
 
 @dataclass
