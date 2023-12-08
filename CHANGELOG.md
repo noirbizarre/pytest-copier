@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 🚀 0.3.0 (2023-12-08)
+
+### 💫 New features
+
+- **fixture**: add a `context()` helper to test context without rendering the project
+- display out and err of called command
+
+### 🐛 Bug fixes
+
+- **run**: cleaner errors on subcommand failures
+
+<!-- End of file -->
+
 ## 🚀 0.2.0 (2023-12-05)
 
 ### 💫 New features
