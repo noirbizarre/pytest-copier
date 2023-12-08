@@ -8,10 +8,6 @@ default_install_hook_types:
   - commit-msg
   - pre-push
 
-default_stages:
-  - commit
-  - push
-
 repos:
   - repo: meta
     hooks:
@@ -53,10 +49,11 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.7
     hooks:
       - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.1
@@ -73,3 +70,4 @@ repos:
       additional_dependencies:
         - tomli
       args: ["--write-changes"]
+      exclude: ^(CHANGELOG\.md|pdm\.lock)$
