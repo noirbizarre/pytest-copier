@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 🚀 0.4.0 (2023-12-11)
+
+### 📖 Documentation
+
+- **CHANGELOG**: fix end of file marker
+
+### 📦 Build
+
+- **deps**: update locked dependencies
+
+<!-- End of file -->
+
 ## 🚀 0.3.0 (2023-12-08)
 
 ### 💫 New features
