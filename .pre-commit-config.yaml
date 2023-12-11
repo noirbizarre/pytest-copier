@@ -8,6 +8,10 @@ default_install_hook_types:
   - commit-msg
   - pre-push
 
+default_stages:
+  - pre-commit
+  - pre-push
+
 repos:
   - repo: meta
     hooks:
