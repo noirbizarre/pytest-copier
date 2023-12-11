@@ -49,7 +49,7 @@ def run(cmd: str, *args, **kwargs) -> str:
     args = [cmd, *args] if args else cmd  # type: ignore
     try:
         return subprocess.check_output(
-            args, text=True, stderr=subprocess.STDOUT, shell=True, **kwargs
+            args, text=True, stderr=subprocess.STDOUT, shell=isinstance(args, str), **kwargs
         )
     except subprocess.CalledProcessError as e:
         out = StringIO()
