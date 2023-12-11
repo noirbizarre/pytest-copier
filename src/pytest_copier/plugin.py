@@ -46,6 +46,7 @@ class AnsersDiffRepr(DiffRepr):
 
 
 def run(cmd: str, *args, **kwargs) -> str:
+    __tracebackhide__ = True
     args = [cmd, *args] if args else cmd  # type: ignore
     try:
         return subprocess.check_output(
