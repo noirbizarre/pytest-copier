@@ -422,17 +422,16 @@ files = [
 
 [[package]]
 name = "emotional"
-version = "0.4.0"
+version = "0.4.1"
 requires_python = ">=3.8"
 summary = "A Commitizen plugin for conventional commit with emojis and integrations"
 dependencies = [
     "commitizen>=3.12",
-    "importlib-resources>=1.3; python_version < \"3.9\"",
     "typing-extensions>=4.4.0; python_version < \"3.10\"",
 ]
 files = [
-    {file = "emotional-0.4.0-py3-none-any.whl", hash = "sha256:e9c4fb8b8ee25ecf882f81985a60c212d1a3bbc12d7788eb2dcb8b2b16cfe4c0"},
-    {file = "emotional-0.4.0.tar.gz", hash = "sha256:67e919a069ee58ac2a6df014f96fd012eb582929d24a51cd86fa54331f6a10bf"},
+    {file = "emotional-0.4.1-py3-none-any.whl", hash = "sha256:f526dd4c527aad40e1c466bebcf496cb4e8eb4b1b42723d1d68012d697fd108f"},
+    {file = "emotional-0.4.1.tar.gz", hash = "sha256:16c7b157785938350b80450e8a3ab4ad0a27fd5c41086a05df70ba69c5536542"},
 ]
 
 [[package]]
@@ -873,7 +872,7 @@ files = [
 
 [[package]]
 name = "pytest-dir-equal"
-version = "0.2.0"
+version = "0.2.1"
 requires_python = ">=3.8"
 summary = "pytest-dir-equals is a pytest plugin providing helpers to assert directories equality allowing golden testing"
 dependencies = [
@@ -881,8 +880,8 @@ dependencies = [
     "pytest>=7.3.2",
 ]
 files = [
-    {file = "pytest_dir_equal-0.2.0-py3-none-any.whl", hash = "sha256:484f1df12ea8526cbefafb1368788b6045bb21c559ae7f65d1fdbf2292c248c2"},
-    {file = "pytest_dir_equal-0.2.0.tar.gz", hash = "sha256:03af0e5076d8b796a128e8130d3532705cfb2ecb38ab975ea15757f1049b0c7e"},
+    {file = "pytest_dir_equal-0.2.1-py3-none-any.whl", hash = "sha256:b0d75305374357afd5dea7ee9348a6668f3037b8f0e58e298c54a885a1540cb2"},
+    {file = "pytest_dir_equal-0.2.1.tar.gz", hash = "sha256:16654c385a3b0946e9a38a9d8c2ac3074dcaf914bdd07facff3f85f4f03761d5"},
 ]
 
 [[package]]

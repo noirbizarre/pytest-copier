@@ -71,3 +71,4 @@ repos:
         - tomli
       args: ["--write-changes"]
       exclude: ^(CHANGELOG\.md|pdm\.lock)$
+      stages: [pre-commit, pre-push]
