@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 🚀 0.4.1 (2023-12-11)
+
+### 🐛 Bug fixes
+
+- **run**: cut the stakctrace on `run` command error
+- **run**: only use enable `shell` if the command is a `str`
+
+<!-- End of file -->
+
 ## 🚀 0.4.0 (2023-12-11)
 
 ### 📖 Documentation
