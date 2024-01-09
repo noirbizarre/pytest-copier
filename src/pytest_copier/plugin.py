@@ -46,6 +46,7 @@ class AnsersDiffRepr(DiffRepr):
 
 
 def run(cmd: str, *args, **kwargs) -> str:
+    """A subprocess.run wrapper with pretty printing of output"""
     __tracebackhide__ = True
     args = [cmd, *args] if args else cmd  # type: ignore
     try:
@@ -68,11 +69,17 @@ def run(cmd: str, *args, **kwargs) -> str:
 
 @pytest.fixture(scope="session")
 def copier_template_root(request: pytest.FixtureRequest) -> Path:
+    """Tested Copier template root path"""
     return request.config.rootpath
 
 
 @pytest.fixture(scope="session")
 def copier_template_paths() -> list[str]:
+    """
+    A whitelist of paths to be considered as "the template".
+
+    Only them will be copied
+    """
     return []
 
 
@@ -99,6 +106,9 @@ def copier_template(
     copier_template_paths: list[str],
     default_gitconfig: GitConfig,
 ) -> Path:
+    """
+    An isolated and tagged copy of the tested Copier template.
+    """
     src = tmp_path_factory.mktemp("src", False)
 
     if copier_template_paths:
@@ -121,12 +131,21 @@ def copier_template(
 
 @dataclass
 class CopierFixture:
+    """
+    A Pytest fixture helper wrapping Copier API for a given template.
+    """
+
     template: Path
+    """Path to the source template to render"""
     defaults: dict[str, Any]
+    """Default answers"""
     monkeypatch: pytest.MonkeyPatch
+    """A session-scoped monkeypatch"""
 
     def copy(self, dst: Path, **data) -> CopierProject:
-        """Copy a template given some answers"""
+        """
+        Run Copier `copy` on the template given some answers
+        """
         __tracebackhide__ = True
         try:
             run_copy(
@@ -146,7 +165,7 @@ class CopierFixture:
         return CopierProject(dst, self)
 
     def update(self, project: Path, **data) -> CopierProject:
-        """Update a template given some answers"""
+        """Update a template given some new answers"""
         __tracebackhide__ = True
         try:
             run_update(
@@ -196,18 +215,30 @@ class CopierFixture:
 
 @dataclass
 class CopierProject:
+    """A rendered Copier project"""
+
     path: Path
+    """The rendered project path"""
+
     copier: CopierFixture
+    """The CopierFixture which generated the project"""
 
     def update(self, **data) -> CopierProject:
+        """Invoke copier update on the project."""
         return self.copier.update(self.path, **data)
 
     @cached_property
     def answers(self) -> dict[str, Any]:
+        """
+        The rendered project answers.
+        """
         return self.load_answers(self.path)
 
     @cached_property
     def context(self) -> dict[str, Any]:
+        """
+        Get the context as it would be with this project answers.
+        """
         return self.copier.context(**self.answers)
 
     def assert_answers(self, expected: Path):
@@ -231,6 +262,7 @@ class CopierProject:
         }
 
     def assert_equal(self, expected: Path, ignore: list[str] | None = None):
+        """ """
         __tracebackhide__ = True
         ignore = DEFAULT_IGNORES + [ANSWERS_FILE] + (ignore or [])
         assert_dir_equal(self.path, expected, ignore=ignore)
@@ -255,6 +287,7 @@ class CopierProject:
 
 @pytest.fixture
 def copier_defaults() -> dict[str, Any]:
+    """Some defaults answers"""
     return {}
 
 
@@ -262,6 +295,11 @@ def copier_defaults() -> dict[str, Any]:
 def copier(
     copier_template: Path, copier_defaults: dict[str, Any], monkeypatch: pytest.MonkeyPatch
 ) -> CopierFixture:
+    """
+    A preconfigured `CopierFixture` instance.
+
+    It uses `copier_template` fixture as template and `copier_defaults` as extra defaults.
+    """
     return CopierFixture(
         template=copier_template, defaults=copier_defaults, monkeypatch=monkeypatch
     )
