@@ -32,6 +32,7 @@ It will also clean up the generated project after the tests have been run.
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from pytest_copier import CopierFixture
 
 
@@ -52,8 +53,8 @@ def copier_template_paths() -> Sequence[str]:
     )
 
 
-def test_rendered_project(copier: CopierFixture):
-    project = copier.copy(project_name="something else")
+def test_rendered_project(copier: CopierFixture, tmp_path: Path):
+    project = copier.copy(tmp_path, project_name="something else")
 
     assert project.answers["project_name") == "something else"
 
