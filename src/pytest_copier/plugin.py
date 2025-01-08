@@ -21,6 +21,8 @@ from pytest_dir_equal import DEFAULT_IGNORES, DiffRepr, assert_dir_equal
 from .errors import CopierTaskError, RunError
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pytest_gitconfig import GitConfig
 
 
@@ -28,7 +30,7 @@ ANSWERS_FILE = ".copier-answers.yml"
 
 
 @dataclass
-class AnsersDiffRepr(DiffRepr):
+class AnswersDiffRepr(DiffRepr):
     expected: dict
     actual: dict
 
@@ -45,10 +47,9 @@ class AnsersDiffRepr(DiffRepr):
         return self._as_lines(self.expected)
 
 
-def run(cmd: str, *args, **kwargs) -> str:
+def run(args: Sequence[str] | str, **kwargs) -> str:
     """A subprocess.run wrapper with pretty printing of output"""
     __tracebackhide__ = True
-    args = [cmd, *args] if args else cmd  # type: ignore
     try:
         return subprocess.check_output(
             args, text=True, stderr=subprocess.STDOUT, shell=isinstance(args, str), **kwargs
@@ -121,10 +122,10 @@ def copier_template(
     else:
         copytree(copier_template_root, src, dirs_exist_ok=True)
 
-    run("git", "init", cwd=src)
-    run("git", "add", "-A", ".", cwd=src)
-    run("git", "commit", "-m", "test", cwd=src)
-    run("git", "tag", "99.99.99", cwd=src)
+    run(["git", "init"], cwd=src)
+    run(["git", "add", "-A", "."], cwd=src)
+    run(["git", "commit", "-m", "test"], cwd=src)
+    run(["git", "tag", "99.99.99"], cwd=src)
 
     return src
 
@@ -249,7 +250,7 @@ class CopierProject:
             tw = TerminalWriter(out)
             tw.hasmarkup = True
             tw.line("❌ Answers are different")
-            AnsersDiffRepr("Answers", self.answers, expected_answers).toterminal(tw)
+            AnswersDiffRepr("Answers", self.answers, expected_answers).toterminal(tw)
             raise AssertionError(out.getvalue())
         assert self.answers == expected_answers
 
@@ -267,14 +268,14 @@ class CopierProject:
         ignore = DEFAULT_IGNORES + [ANSWERS_FILE] + (ignore or [])
         assert_dir_equal(self.path, expected, ignore=ignore)
 
-    def run(self, command: str, **kwargs) -> str:
+    def run(self, args: Sequence[str] | str, **kwargs) -> str:
         """Run a command in the rendered project"""
         __tracebackhide__ = True
         try:
-            return run(command, cwd=self.path, **kwargs)
+            return run(args, cwd=self.path, **kwargs)
         except RunError as e:
             # produce a more streamlined error report
-            # we explicitly raise form None to cut the inner stacktrace too
+            # we explicitly raise from None to cut the inner stacktrace too
             raise RuntimeError(str(e)) from None
 
     def __truediv__(self, key):
