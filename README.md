@@ -29,6 +29,7 @@ It also allows to just test the rendering context.
 It will also clean up the generated project after the tests have been run.
 
 ```python
+import shutil
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -60,7 +61,8 @@ def test_rendered_project(copier: CopierFixture):
     some_file = project / "some.file"
     assert some_file.exists()
 
-    output = project.run("do something")
+    ls_cmd = shutil.which("ls")
+    output = project.run([ls_cmd, "-l"])
     assert "expected" in output
 
 
